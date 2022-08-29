@@ -14,7 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class VerSmsService extends Service {
-    private VerSmsService sms;
+
     private Timer timer = new Timer();
     private ContentResolver cr ;
     public VerSmsService() {
@@ -24,7 +24,7 @@ public class VerSmsService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        sms= new VerSmsService();
+
 
     }
 
@@ -34,7 +34,7 @@ public class VerSmsService extends Service {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                sms.verUltimosSms(cr);
+                verUltimosSms();
                 Log.d("salida","---------------------");
             }
         },0,9000);
@@ -44,22 +44,24 @@ public class VerSmsService extends Service {
 
     @Override
     public boolean stopService(Intent name) {
+        super.stopService(name);
         timer.cancel();
-        return super.stopService(name);
+        return true;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         timer.cancel();
+        Log.d("salida","Servicio Suspendido");
     }
 
     @Override
     public IBinder onBind(Intent intent) {return  null;}
 
-    private void verUltimosSms(ContentResolver contentResolver){
+    private void verUltimosSms(){
         Uri sms = Uri.parse("content://sms/inbox");
-        Cursor cursor=contentResolver.query(sms,null,null,null,null);
+        Cursor cursor=cr.query(sms,null,null,null,null);
         if(cursor.getCount()>0){
             int e=cursor.getColumnIndex(Telephony.Sms.ADDRESS);
             int b=cursor.getColumnIndex(Telephony.Sms.BODY);
